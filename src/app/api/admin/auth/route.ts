@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import fs from 'fs';
-import path from 'path';
 
-// Get stored password from config or environment
+// Get stored password from environment or default
 function getStoredPassword(): string {
-  const envPassword = process.env.ADMIN_PASSWORD;
-  if (envPassword) return envPassword;
-
-  const configPath = path.join(process.cwd(), 'data', 'config.json');
-  if (fs.existsSync(configPath)) {
-    try {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      if (config.adminPassword) return config.adminPassword;
-    } catch {
-      // Fall through to default
-    }
-  }
-
-  return 'keyproduction2024';
+  return process.env.ADMIN_PASSWORD || 'keyproduction2024';
 }
 
 export async function POST(request: NextRequest) {

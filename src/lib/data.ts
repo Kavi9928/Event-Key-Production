@@ -1,20 +1,35 @@
 // Data management for admin panel
-// Using JSON files for data persistence
+// Using JSON files for data persistence (local development only)
+// For production on Vercel, use a database like MongoDB, PostgreSQL, or Vercel KV
 
-import fs from 'fs';
-import path from 'path';
+// Check if we're in a serverless environment (Vercel)
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+// Conditionally import fs only if not serverless
+let fs: typeof import('fs') | null = null;
+let path: typeof import('path') | null = null;
 
-// Ensure data directory exists
+if (!isServerless) {
+  fs = require('fs');
+  path = require('path');
+}
+
+const DATA_DIR = path ? path.join(process.cwd(), 'data') : '';
+
+// Ensure data directory exists (local only)
 function ensureDataDir() {
+  if (isServerless || !fs || !path) return;
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
 }
 
-// Generic read function
+// Generic read function - returns default data on serverless
 export function readData<T>(filename: string, defaultData: T): T {
+  if (isServerless || !fs || !path) {
+    return defaultData;
+  }
+  
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   
@@ -31,8 +46,13 @@ export function readData<T>(filename: string, defaultData: T): T {
   }
 }
 
-// Generic write function
+// Generic write function - no-op on serverless
 export function writeData<T>(filename: string, data: T): void {
+  if (isServerless || !fs || !path) {
+    console.log('Write operation skipped in serverless environment');
+    return;
+  }
+  
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
