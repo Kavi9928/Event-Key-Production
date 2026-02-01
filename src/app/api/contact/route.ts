@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { addContactSubmission } from '@/lib/data';
 
 interface ContactFormData {
   name: string;
@@ -14,6 +15,20 @@ interface ContactFormData {
 export async function POST(request: NextRequest) {
   try {
     const body: ContactFormData = await request.json();
+
+    // Save to admin panel
+    try {
+      addContactSubmission({
+        name: body.name,
+        email: body.email,
+        phone: body.phone,
+        service: body.projectType,
+        message: body.message,
+      });
+    } catch (saveError) {
+      console.error('Error saving contact submission:', saveError);
+      // Continue with email sending even if save fails
+    }
 
     // Validate required fields
     if (!body.name || !body.email || !body.projectType || !body.message) {

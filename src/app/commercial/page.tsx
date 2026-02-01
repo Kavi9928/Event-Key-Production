@@ -1,108 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/PageHeader';
 import Modal from '@/components/Modal';
-import { Play, Filter } from 'lucide-react';
-
-const videos = [
-  {
-    id: 1,
-    title: 'Nike Air Max Launch',
-    category: 'Product Launch',
-    client: 'Nike',
-    thumbnail: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video1.mp4',
-    description: 'Cinematic product launch commercial showcasing the new Nike Air Max collection with dynamic visuals and high-energy editing.',
-    duration: '0:60',
-  },
-  {
-    id: 2,
-    title: 'Luxury Watch Campaign',
-    category: 'Luxury',
-    client: 'Rolex',
-    thumbnail: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video2.mp4',
-    description: 'Elegant commercial highlighting the craftsmanship and timeless design of premium luxury timepieces.',
-    duration: '0:45',
-  },
-  {
-    id: 3,
-    title: 'Automotive Excellence',
-    category: 'Automotive',
-    client: 'Mercedes-Benz',
-    thumbnail: 'https://images.unsplash.com/photo-1617654112368-307921291f42?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video3.mp4',
-    description: 'Premium automotive commercial featuring stunning cinematography and cutting-edge visual effects.',
-    duration: '1:00',
-  },
-  {
-    id: 4,
-    title: 'Fragrance Campaign',
-    category: 'Beauty',
-    client: 'Dior',
-    thumbnail: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video4.mp4',
-    description: 'Sensual and artistic fragrance commercial capturing the essence of luxury and sophistication.',
-    duration: '0:30',
-  },
-  {
-    id: 5,
-    title: 'Tech Innovation Reveal',
-    category: 'Technology',
-    client: 'Apple',
-    thumbnail: 'https://images.unsplash.com/photo-1491933382434-500287f9b54b?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video5.mp4',
-    description: 'Sleek product reveal video showcasing cutting-edge technology with minimalist aesthetic.',
-    duration: '0:90',
-  },
-  {
-    id: 6,
-    title: 'Fashion Brand Story',
-    category: 'Fashion',
-    client: 'Gucci',
-    thumbnail: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video6.mp4',
-    description: 'Creative brand story video blending fashion, art, and storytelling in a visually stunning narrative.',
-    duration: '2:00',
-  },
-  {
-    id: 7,
-    title: 'Sports Energy Drink',
-    category: 'Beverage',
-    client: 'Red Bull',
-    thumbnail: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video7.mp4',
-    description: 'High-octane commercial featuring extreme sports and adrenaline-pumping action sequences.',
-    duration: '0:45',
-  },
-  {
-    id: 8,
-    title: 'Hospitality Experience',
-    category: 'Hospitality',
-    client: 'Four Seasons',
-    thumbnail: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video8.mp4',
-    description: 'Luxurious hospitality commercial showcasing world-class service and breathtaking destinations.',
-    duration: '1:30',
-  },
-  {
-    id: 9,
-    title: 'Corporate Brand Film',
-    category: 'Corporate',
-    client: 'Goldman Sachs',
-    thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop',
-    videoUrl: 'https://example.com/video9.mp4',
-    description: 'Professional corporate film communicating brand values and vision with cinematic quality.',
-    duration: '3:00',
-  },
-];
+import { Play, Filter, Loader2 } from 'lucide-react';
 
 const categories = ['All', 'Product Launch', 'Luxury', 'Automotive', 'Beauty', 'Technology', 'Fashion', 'Beverage', 'Hospitality', 'Corporate'];
 
 interface Video {
-  id: number;
+  id: string;
   title: string;
   category: string;
   client: string;
@@ -110,12 +17,33 @@ interface Video {
   videoUrl: string;
   description: string;
   duration: string;
+  featured?: boolean;
 }
 
 export default function CommercialPage() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    async function fetchCommercials() {
+      try {
+        const res = await fetch('/api/commercials');
+        if (res.ok) {
+          const data = await res.json();
+          setVideos(data);
+        }
+      } catch (error) {
+        console.error('Error fetching commercials:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCommercials();
+  }, []);
 
   const filteredVideos = activeCategory === 'All' 
     ? videos 
@@ -166,6 +94,15 @@ export default function CommercialPage() {
       {/* Videos Grid */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={40} className="animate-spin text-accent" />
+            </div>
+          ) : filteredVideos.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-muted text-lg">No commercials found in this category.</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredVideos.map((video, index) => (
               <motion.div
@@ -219,6 +156,7 @@ export default function CommercialPage() {
               </motion.div>
             ))}
           </div>
+          )}
         </div>
       </section>
 

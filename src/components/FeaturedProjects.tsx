@@ -1,55 +1,41 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Loader2 } from 'lucide-react';
 
-const projects = [
-  {
-    id: 1,
-    title: 'Global Music Festival 2025',
-    category: 'Live Event',
-    image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&h=600&fit=crop',
-    href: '/events/global-music-festival',
-  },
-  {
-    id: 2,
-    title: 'Nike Air Max Launch',
-    category: 'Commercial',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=600&fit=crop',
-    href: '/commercial/nike-air-max',
-  },
-  {
-    id: 3,
-    title: 'Tech Summit Conference',
-    category: 'Corporate Event',
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop',
-    href: '/events/tech-summit',
-  },
-  {
-    id: 4,
-    title: 'Luxury Watch Campaign',
-    category: 'Commercial',
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=600&fit=crop',
-    href: '/commercial/luxury-watch',
-  },
-  {
-    id: 5,
-    title: 'Fashion Week Gala',
-    category: 'Fashion Event',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-    href: '/events/fashion-week',
-  },
-  {
-    id: 6,
-    title: 'Automotive Commercial',
-    category: 'Commercial',
-    image: 'https://images.unsplash.com/photo-1617654112368-307921291f42?w=800&h=600&fit=crop',
-    href: '/commercial/automotive',
-  },
-];
+interface Event {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  featured?: boolean;
+}
 
 export default function FeaturedProjects() {
+  const [projects, setProjects] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await fetch('/api/events');
+        if (res.ok) {
+          const data = await res.json();
+          // Get featured events or first 6
+          const featured = data.filter((e: Event) => e.featured).slice(0, 6);
+          setProjects(featured.length > 0 ? featured : data.slice(0, 6));
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProjects();
+  }, []);
+
   return (
     <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-6">
@@ -74,6 +60,15 @@ export default function FeaturedProjects() {
         </motion.div>
 
         {/* Projects Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={40} className="animate-spin text-accent" />
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-muted">No featured projects available.</p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
             <motion.div
@@ -83,7 +78,7 @@ export default function FeaturedProjects() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Link href={project.href} className="group block relative overflow-hidden rounded-2xl">
+              <Link href="/events" className="group block relative overflow-hidden rounded-2xl">
                 <div className="aspect-[4/3] relative">
                   <img
                     src={project.image}
@@ -110,6 +105,7 @@ export default function FeaturedProjects() {
             </motion.div>
           ))}
         </div>
+        )}
 
         {/* View All Button */}
         <motion.div

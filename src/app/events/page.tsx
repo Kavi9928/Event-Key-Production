@@ -1,98 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/PageHeader';
 import Modal from '@/components/Modal';
-import { Calendar, MapPin, Users, ArrowUpRight } from 'lucide-react';
-
-const events = [
-  {
-    id: 1,
-    title: 'Global Music Festival 2025',
-    category: 'Music Festival',
-    date: 'December 15-17, 2025',
-    location: 'Los Angeles, CA',
-    attendees: '50,000+',
-    image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&h=600&fit=crop',
-    description: 'A three-day celebration of music featuring world-renowned artists across multiple stages. We handled complete production including stage design, lighting, sound systems, and live broadcasting.',
-    services: ['Stage Design', 'Lighting', 'Sound Engineering', 'Live Streaming', 'Artist Management'],
-  },
-  {
-    id: 2,
-    title: 'Tech Summit Conference',
-    category: 'Corporate',
-    date: 'November 8-10, 2025',
-    location: 'San Francisco, CA',
-    attendees: '5,000+',
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop',
-    description: 'Annual technology conference bringing together industry leaders and innovators. Full production services including keynote presentations, breakout sessions, and networking events.',
-    services: ['AV Production', 'Stage Design', 'Live Streaming', 'Event Management'],
-  },
-  {
-    id: 3,
-    title: 'Fashion Week Gala',
-    category: 'Fashion',
-    date: 'September 20, 2025',
-    location: 'New York, NY',
-    attendees: '2,000+',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-    description: 'Exclusive fashion gala showcasing top designers with runway shows and celebrity appearances. Elegant production with dramatic lighting and immersive experiences.',
-    services: ['Runway Production', 'Lighting Design', 'Sound Design', 'VIP Experience'],
-  },
-  {
-    id: 4,
-    title: 'Sports Awards Ceremony',
-    category: 'Awards Show',
-    date: 'August 5, 2025',
-    location: 'Las Vegas, NV',
-    attendees: '3,500+',
-    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&h=600&fit=crop',
-    description: 'Prestigious sports awards ceremony celebrating athletic excellence. Complete show production with live performances, celebrity presenters, and broadcast coordination.',
-    services: ['Show Production', 'Stage Design', 'Broadcast Production', 'Talent Coordination'],
-  },
-  {
-    id: 5,
-    title: 'Product Launch Event',
-    category: 'Corporate',
-    date: 'July 12, 2025',
-    location: 'Austin, TX',
-    attendees: '1,500+',
-    image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&h=600&fit=crop',
-    description: 'High-profile product launch for a leading tech company. Theatrical reveal with immersive product demonstrations and media coordination.',
-    services: ['Product Reveal', 'Demo Stations', 'Media Coordination', 'VIP Hospitality'],
-  },
-  {
-    id: 6,
-    title: 'Charity Gala Night',
-    category: 'Charity',
-    date: 'June 25, 2025',
-    location: 'Miami, FL',
-    attendees: '800+',
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&h=600&fit=crop',
-    description: 'Elegant charity fundraiser with live auction, entertainment, and gourmet dining. Sophisticated production creating an atmosphere of luxury and generosity.',
-    services: ['Event Design', 'Entertainment', 'Auction Production', 'Catering Coordination'],
-  },
-];
-
-const categories = ['All', 'Music Festival', 'Corporate', 'Fashion', 'Awards Show', 'Charity'];
+import { Calendar, MapPin, Users, ArrowUpRight, Loader2 } from 'lucide-react';
 
 interface Event {
-  id: number;
+  id: string;
   title: string;
   category: string;
   date: string;
   location: string;
-  attendees: string;
+  attendees?: string;
   image: string;
   description: string;
-  services: string[];
+  services?: string[];
+  featured?: boolean;
 }
 
 export default function EventsPage() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const res = await fetch('/api/events');
+        if (res.ok) {
+          const data = await res.json();
+          setEvents(data);
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
+
+  const categories = ['All', ...new Set(events.map(e => e.category))];
+  
   const filteredEvents = activeCategory === 'All' 
     ? events 
     : events.filter(event => event.category === activeCategory);
@@ -129,6 +80,15 @@ export default function EventsPage() {
       {/* Events Grid */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={40} className="animate-spin text-accent" />
+            </div>
+          ) : filteredEvents.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-muted text-lg">No events found in this category.</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event, index) => (
               <motion.div
@@ -168,7 +128,7 @@ export default function EventsPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Users size={14} className="text-accent" />
-                        {event.attendees} Attendees
+                        {event.attendees || 'Event'}
                       </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-accent text-sm font-medium">
@@ -180,6 +140,7 @@ export default function EventsPage() {
               </motion.div>
             ))}
           </div>
+          )}
         </div>
       </section>
 
@@ -216,6 +177,7 @@ export default function EventsPage() {
             <p className="text-muted leading-relaxed mb-6">
               {selectedEvent.description}
             </p>
+            {selectedEvent.services && selectedEvent.services.length > 0 && (
             <div>
               <h4 className="font-semibold text-foreground mb-3">Services Provided</h4>
               <div className="flex flex-wrap gap-2">
@@ -229,6 +191,7 @@ export default function EventsPage() {
                 ))}
               </div>
             </div>
+            )}
           </div>
         )}
       </Modal>

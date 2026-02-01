@@ -1,33 +1,54 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Quote, Star } from 'lucide-react';
+import { Quote, Star, Loader2 } from 'lucide-react';
 
-const testimonials = [
-  {
-    quote: "Key Production transformed our product launch into an unforgettable experience. Their attention to detail and creative vision exceeded all expectations.",
-    author: "Sarah Chen",
-    role: "Marketing Director, Tech Corp",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-    rating: 5,
-  },
-  {
-    quote: "The commercial they produced for us was nothing short of cinematic excellence. It drove a 40% increase in our brand engagement.",
-    author: "Michael Roberts",
-    role: "CEO, Luxury Brands Inc",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    rating: 5,
-  },
-  {
-    quote: "From concept to execution, their team delivered a world-class music festival that our attendees are still talking about months later.",
-    author: "Emily Zhang",
-    role: "Event Director, Festival Group",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    rating: 5,
-  },
-];
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  image?: string;
+  rating: number;
+}
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTestimonials() {
+      try {
+        const res = await fetch('/api/testimonials');
+        if (res.ok) {
+          const data = await res.json();
+          setTestimonials(data);
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTestimonials();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-24 bg-background">
+        <div className="flex items-center justify-center">
+          <Loader2 size={40} className="animate-spin text-accent" />
+        </div>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-24 bg-background relative overflow-hidden">
       {/* Background Decoration */}
@@ -58,7 +79,7 @@ export default function Testimonials() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
             <motion.div
-              key={testimonial.author}
+              key={testimonial.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -79,20 +100,18 @@ export default function Testimonials() {
               </div>
               
               <p className="text-foreground/90 leading-relaxed mb-8 relative z-10">
-                &ldquo;{testimonial.quote}&rdquo;
+                &ldquo;{testimonial.content}&rdquo;
               </p>
               <div className="flex items-center gap-4">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.author}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-lg">
+                  {testimonial.name.charAt(0)}
+                </div>
                 <div>
                   <div className="font-semibold text-foreground">
-                    {testimonial.author}
+                    {testimonial.name}
                   </div>
                   <div className="text-sm text-muted">
-                    {testimonial.role}
+                    {testimonial.role}{testimonial.company && ` at ${testimonial.company}`}
                   </div>
                 </div>
               </div>
