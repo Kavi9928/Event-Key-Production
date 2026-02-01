@@ -27,6 +27,15 @@
   --gray-dark: #888888;
 }
 
+/* Theme-aware logo - inverts black logo to white in dark mode */
+[data-theme="dark"] .theme-logo {
+  filter: invert(1) brightness(1.2);
+}
+
+[data-theme="light"] .theme-logo {
+  filter: none;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import ThemeLogo from './ThemeLogo';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -54,14 +54,7 @@ export default function Navbar() {
               whileHover={{ scale: 1.05 }}
               className="relative"
             >
-              <Image
-                src="/logo.png"
-                alt="Key Production"
-                width={160}
-                height={60}
-                className="h-12 w-auto"
-                priority
-              />
+              <ThemeLogo width={200} height={75} className="h-16 w-auto" priority />
             </motion.div>
           </Link>
 

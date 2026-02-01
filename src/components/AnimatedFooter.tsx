@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { Instagram, Youtube, Facebook, Mail, Phone, MapPin, Send, ArrowUpRight, Heart } from 'lucide-react';
+import ThemeLogo from './ThemeLogo';
 
 const socialLinks = [
   { icon: Instagram, href: '#', label: 'Instagram', color: 'hover:bg-gradient-to-br hover:from-purple-500 hover:to-pink-500' },
@@ -174,13 +174,7 @@ export default function AnimatedFooter() {
           <motion.div variants={itemVariants} className="lg:col-span-1">
             <Link href="/" className="inline-block mb-6">
               <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 400 }}>
-                <Image
-                  src="/logo.png"
-                  alt="Key Production"
-                  width={140}
-                  height={52}
-                  className="h-10 w-auto"
-                />
+                <ThemeLogo width={180} height={68} className="h-14 w-auto" />
               </motion.div>
             </Link>
             <p className="text-muted text-sm leading-relaxed mb-6">

@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Instagram, Youtube, Facebook, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import ThemeLogo from './ThemeLogo';
 
 const socialLinks = [
   { icon: Instagram, href: '#', label: 'Instagram' },
@@ -35,13 +35,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-6">
-              <Image
-                src="/logo.png"
-                alt="Key Production"
-                width={140}
-                height={52}
-                className="h-10 w-auto"
-              />
+              <ThemeLogo width={180} height={68} className="h-14 w-auto" />
             </Link>
             <p className="text-muted text-sm leading-relaxed mb-6">
               Crafting unforgettable experiences through world-class event production 

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import ThemeLogo from './ThemeLogo';
 
 export default function PageLoader() {
   return (
@@ -22,13 +23,9 @@ export default function PageLoader() {
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="w-24 h-24 relative"
+          className="w-24 h-24 relative flex items-center justify-center"
         >
-          <img
-            src="/logo.png"
-            alt="Key Production"
-            className="w-full h-full object-contain"
-          />
+          <ThemeLogo width={96} height={96} className="w-full h-full object-contain" />
         </motion.div>
 
         {/* Loading Bar */}
