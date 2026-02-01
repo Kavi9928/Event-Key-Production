@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import AnimatedFooter from "@/components/AnimatedFooter";
 import JsonLd from "@/components/JsonLd";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,17 +82,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <JsonLd />
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        <main>{children}</main>
-        <WhatsAppButton phoneNumber="94769238423" />
-        <AnimatedFooter />
+        <ThemeProvider>
+          <Navbar />
+          <main>{children}</main>
+          <WhatsAppButton phoneNumber="94769238423" />
+          <AnimatedFooter />
+        </ThemeProvider>
       </body>
     </html>
   );

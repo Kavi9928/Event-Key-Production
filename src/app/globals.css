@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+[data-theme="dark"] {
   --background: #0a0a0a;
   --foreground: #ededed;
   --accent: #5CB027;
@@ -11,6 +12,19 @@
   --card-hover: #1a1a1a;
   --border: #262626;
   --gray-dark: #4A4A4A;
+}
+
+[data-theme="light"] {
+  --background: #f8f9fa;
+  --foreground: #1a1a1a;
+  --accent: #5CB027;
+  --accent-light: #7ED348;
+  --accent-dark: #4A9020;
+  --muted: #666666;
+  --card: #ffffff;
+  --card-hover: #f0f0f0;
+  --border: #e0e0e0;
+  --gray-dark: #888888;
 }
 
 @theme inline {
@@ -80,6 +94,10 @@ body {
   background: rgba(20, 20, 20, 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
+}
+
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 /* Video Container */

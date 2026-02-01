@@ -6,11 +6,13 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/events', label: 'Events' },
   { href: '/commercial', label: 'Commercial' },
+  { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -81,6 +83,7 @@ export default function Navbar() {
                 }`} />
               </Link>
             ))}
+            <ThemeToggle />
             <Link
               href="/contact"
               className="px-5 py-2.5 bg-accent text-background text-sm font-semibold rounded-full hover:bg-accent-light transition-all duration-300 hover:shadow-lg hover:shadow-accent/20"
